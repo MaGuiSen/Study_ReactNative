@@ -1,8 +1,8 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+///**
+// * Sample React Native App
+// * https://github.com/facebook/react-native
+// * @flow
+// */
 var React =  require('react'),
     { AppRegistry,Navigator} =  require('react-native')
     Start = require('./app/start');
@@ -31,3 +31,8 @@ export default class Root extends React.Component{
     }
 }
 AppRegistry.registerComponent('Eping', () => Root);
+//
+////const { AppRegistry } = require('react-native');
+////var Mine = require('./app/mine');
+////
+////AppRegistry.registerComponent('Eping',() => Mine);
