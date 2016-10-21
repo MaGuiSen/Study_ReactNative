@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 var Mine = require('./mine');
 var Home = require('./home');
+var Lv = require('./listview');
 //引入tabbar支持包
 import TabNavigator from 'react-native-tab-navigator';
 
@@ -59,12 +60,12 @@ export default class Main extends Component {
             case 'Home':
                 tabNomal=TAB_NORMAL_1;
                 tabPress=TAB_PRESS_1;
-                Comp = Mine;
+                Comp = Home;
                 break;
             case 'Video':
                 tabNomal=TAB_NORMAL_2;
                 tabPress=TAB_PRESS_2;
-                Comp = Home;
+                Comp = Lv;
                 break;
             case 'Follow':
                 tabNomal=TAB_NORMAL_3;
@@ -74,7 +75,7 @@ export default class Main extends Component {
             case 'Mine':
                 tabNomal=TAB_NORMAL_4;
                 tabPress=TAB_PRESS_4;
-                Comp = Home;
+                Comp = Mine;
                 break;
             default:
         }
@@ -87,7 +88,7 @@ export default class Main extends Component {
                 selectedTitleStyle={{color:'#f85959'}}
                 onPress={()=>this.onPress(tabName)}
                 renderBadge={()=>isBadge?<View style={styles.badgeView}><Text style={styles.badgeText}>15</Text></View>:null}>
-                <Comp></Comp>
+                <Comp navigator={this.props.navigator}></Comp>
             </TabNavigatorItem>
         );
     }

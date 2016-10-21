@@ -3,111 +3,110 @@
  */
 
 'use strict';
+const React = require('react'),ReactNative = require('react-native');
+var HttpExecute = require("./http/HttpExecute");
+var {
+    Dimensions,
+        View,
+        Text,
+        Image,
+        ListView,
+        RefreshControl,
+} = ReactNative,
+    ww = Dimensions.get('window').width,  //设备宽度
+    ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});  // ListView 数据需要
 
-const React = require('react');
-const ReactNative = require('react-native');
-const {
-    ScrollView,
-    StyleSheet,
-    RefreshControl,
-    Text,
-    TouchableWithoutFeedback,
-    View,
-    } = ReactNative;
 
-const styles = StyleSheet.create({
-    row: {
-        borderColor: 'grey',
-        borderWidth: 1,
-        padding: 20,
-        backgroundColor: '#3a5795',
-        margin: 5,
+var IndexView = React.createClass({
+    //render 之前启用
+    componentDidMount:function () {
+        this._getData();
     },
-    text: {
-        alignSelf: 'center',
-        color: '#fff',
+    //开始的时候设定数据使用
+    getInitialState: function () {
+        return {
+            indexData: ds.cloneWithRows([0]),
+            isRefreshing: false
+        };
     },
-    scrollview: {
-        flex: 1,
+    _getData(){
+        HttpExecute.getDynamicHome({},this._getSuccess,this._getFail)
     },
-});
-
-class Row extends React.Component {
-    _onClick = () => {
-        this.props.onClick(this.props.data);
-    };
-
-    render() {
-        return (
-            <TouchableWithoutFeedback onPress={this._onClick} >
-                <View style={styles.row}>
-                    <Text style={styles.text}>
-                        {this.props.data.text + ' (' + this.props.data.clicks + ' clicks)'}
-                    </Text>
-                </View>
-            </TouchableWithoutFeedback>
-        );
-    }
-}
-
-class Home extends React.Component {
-    static title = '<RefreshControl>';
-    static description = 'Adds pull-to-refresh support to a scrollview.';
-
-    state = {
-        isRefreshing: false,
-        loaded: 0,
-        rowData: Array.from(new Array(20)).map(
-            (val, i) => ({text: 'Initial row ' + i, clicks: 0})),
-    };
-
-    _onClick = (row) => {
-        row.clicks++;
+    _getSuccess(json){
         this.setState({
-            rowData: this.state.rowData,
+            isRefreshing: false,
+            indexData: ds.cloneWithRows(json.Data)
         });
-    };
+        console.log(json.Data);
+    },
+    _getFail(msg){
+        this.setState({
+            isRefreshing: false,
+        });
+        console.error(msg);
+    },
+    //循环布局
+    _row(row){
+        let rowWidth = parseInt(row.width),
+            rowHeight = parseInt(row.height),
+            bi = ww / rowWidth;
 
-    render() {
-        const rows = this.state.rowData.map((row, ii) => {
-            return <Row key={ii} data={row} onClick={this._onClick}/>;
-        });
+        if (row.type == 'model_horizontal') {
+            for (let col of row.col) {
+                col.bi = bi;
+            }
+            return (
+                <View style={{width:ww,height:rowHeight * bi}}>
+                    <ListView
+                        dataSource={ds.cloneWithRows(row.col)}
+                        renderRow={this._colHorizontal}
+                        horizontal={true}
+                    />
+                </View>
+            );
+        } else if (row.type == 'model_space') {
+            return (<View style={{width:ww,height:rowHeight}} ></View>);
+        } else if (row.type == 'model_title') {
+            return (
+                <View style={{width:ww,height:30,backgroundColor:'#ffffff'}} >
+                    <Text style={{padding:10}}>{row.col.title}</Text>
+                </View>
+            );
+        } else {
+            return null;
+        }
+
+    },
+    _colHorizontal(col){
         return (
-            <ScrollView
-                style={styles.scrollview}
+            <Image source={{uri:col.image_url_3x}} style={{width: col.bi * col.width,height:col.bi * col.height}}/>
+        );
+    },
+    _onRefresh() {
+        this.setState({isRefreshing: true});
+        this. _getData();
+    },
+    render: function () {
+        return (
+            <ListView
+                dataSource={this.state.indexData}
+                renderRow={this._row}
+                onEndReached={this._onEndReached} //到达底部需要设置则个
+                pageSize={3}  //??
+                initialListSize ={3}  //??  每帧渲染几条
+                onEndReachedThreshold={10} // 设置10px 需要设置，才能正常触发到达底部
                 refreshControl={
-          <RefreshControl
-            refreshing={this.state.isRefreshing}
-            onRefresh={this._onRefresh}
-            tintColor="#ff0000"
-            title="Loading..."
-            titleColor="#00ff00"
-            colors={['#ff0000', '#00ff00', '#0000ff']}
-            progressBackgroundColor="#ffff00"
-          />
-        }>
-                {rows}
-            </ScrollView>
+                <RefreshControl
+                    refreshing={this.state.isRefreshing}
+                    onRefresh={this._onRefresh}
+                    tintColor="#ff0000"
+                    title="Loading..."
+                    titleColor="#00ff00"
+                    colors={['#ff0000', '#00ff00', '#0000ff']}
+                    progressBackgroundColor="#ffff00"
+            />}
+            />
         );
     }
-
-    _onRefresh = () => {
-        this.setState({isRefreshing: true});
-        setTimeout(() => {
-            // prepend 10 items
-            const rowData = Array.from(new Array(10))
-                .map((val, i) => ({
-                    text: 'Loaded row ' + (+this.state.loaded + i),
-                    clicks: 0,
-                }))
-                .concat(this.state.rowData);
-
-            this.setState({
-                loaded: this.state.loaded + 10,
-                isRefreshing: false,
-                rowData: rowData,
-            });
-        }, 5000);
-    };
-}
-module.exports = Home;
+});
+module.exports = IndexView;
