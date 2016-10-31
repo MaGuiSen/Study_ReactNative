@@ -5,7 +5,6 @@
 
 var React = require("react"),
     {
-        Dimensions,
         Alert,
         Text,
         View,
@@ -13,260 +12,202 @@ var React = require("react"),
         StyleSheet,
         RefreshControl,
         ToastAndroid,
-        ScrollView
+        ScrollView,
+        TouchableHighlight,
+        TextInput
         } = require("react-native");
-var sh = Dimensions.get('window').height,
-    sw = Dimensions.get('window').width;
+var ScreenUtil = require("./util/ScreenUtil");
+var ColorUtil = require("./util/ColorUtil");
 const SERVE_DETAIL = 0, HEALTH_PROFILE = 1, MSG_RECORD = 2;
 export default class Login extends React.Component {
-    _clickHeaderTool(a) {
-        const { navigator} = this.props;
-        if (navigator) {
-            navigator.pop();
-        }
-        console.log(a)
-        switch (a) {
-            case SERVE_DETAIL:
-                ToastAndroid.show("点击服务内容", ToastAndroid.SHORT);
-                break;
-            case HEALTH_PROFILE:
-                ToastAndroid.show("点击健康档案", ToastAndroid.SHORT);
-                break;
-            case MSG_RECORD:
-                ToastAndroid.show("点击消息记录", ToastAndroid.SHORT);
-                break;
-            default :
-                break;
-        }
-    }
-
-    _onRefresh() {
-        ToastAndroid.show("刷新", ToastAndroid.SHORT);
-        this.setState({isRefreshing: true});
-        setTimeout(() => {
-            this.setState({
-                isRefreshing: false
-            });
-        }, 5000);
-    }
     constructor(props) {
         super(props);
-        this.state = {  isRefreshing:false };
+        this.state = {
+            userName: "",
+            pwd:"",
+            canSeePwd:true
+        }
     }
 
-
-    //getInitialState() {
-    //    return {
-    //        isRefreshing: false
-    //    };
-    //}
-
     render() {
+        let canSeePwdIcon = this.state.canSeePwd ? 'http://res.dyhjw.com/ueditor/php/upload/image/20161027/1477530185494247.jpg': 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg';
         return (
-            <ScrollView style={styles.container}  refreshControl={
-                  <RefreshControl
-                    refreshing={this.state.isRefreshing}
-                    onRefresh={this._onRefresh.bind(this)}
-                    tintColor="#ff0000"
-                    title="Loading..."
-                    titleColor="#00ff00"
-                    colors={['#ff0000', '#00ff00', '#0000ff']}
-                    progressBackgroundColor="#ffff00"
-                  />
-                }>
-                <View style={styles.headerLay}>
+            <ScrollView>
+                <View style={styles.container}>
                     <Image style={styles.avatar}
                            source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                    <Text>小敏aaa</Text>
-                    <View style={styles.headerTool}>
-                        <Text style={styles.headerToolTxt}
-                              onPress={this._clickHeaderTool.bind(this,SERVE_DETAIL)}>服务内容</Text>
-                        <Text>|</Text>
-                        <Text style={styles.headerToolTxt} onPress={this._clickHeaderTool.bind(this,HEALTH_PROFILE)}>健康档案</Text>
-                        <Text>|</Text>
-                        <Text style={styles.headerToolTxt}
-                              onPress={this._clickHeaderTool.bind(this,MSG_RECORD)}>我的预告</Text>
-                    </View>
-                </View>
-                <View style={[styles.serveLay,,{paddingTop:20}]}>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
+                    <View style={styles.inputLay}>
+                        <Image style={styles.icon_input_l}
                                source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}>不限</Text>
+                        <TextInput style={styles.txtInput}
+                                   underlineColorAndroid={'#ffffff'}
+                                   placeholder="用户名"
+                                   numberOfLines={1}
+                                   autoFocus={false}
+                                   onChangeText={(userName) => this.setState({userName})}
+                                   value={this.state.userName}/>
                     </View>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
+                    <View style={styles.inputLay}>
+                        <Image style={styles.icon_input_l}
                                source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}>不限</Text>
+                        <TextInput style={styles.txtInput}
+                                   underlineColorAndroid={'#ffffff'}
+                                   placeholder="密码"
+                                   numberOfLines={1}
+                                   autoFocus={false}
+                                   secureTextEntry={!this.state.canSeePwd}
+                                   onChangeText={(pwd) => this.setState({pwd})}
+                                   value={this.state.pwd}/>
+                        <TouchableHighlight onPress={this._switchCanSeePwd.bind(this)}>
+                            <Image style={styles.icon_input_r} source={{uri:canSeePwdIcon}}></Image>
+                         </TouchableHighlight>
                     </View>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
-                               source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}>不限</Text>
+                    <View style={styles.btnLay}>
+                        <Text style={styles.commit} onPress={this._commit.bind(this)}>登陆</Text>
+                        <Text style={styles.registe} onPress={this._registe.bind(this)}>注册</Text>
                     </View>
-                </View>
-                <View style={[styles.serveLay]}>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
-                               source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}>不限</Text>
-                    </View>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
-                               source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}>不限</Text>
-                    </View>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
-                               source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}>不限</Text>
-                    </View>
-                </View>
-                <View style={[styles.serveLay,{paddingBottom:20}]}>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
-                               source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}></Text>
-                    </View>
-                    <View style={styles.serveItem}>
-                        <Image style={styles.serveImg}
-                               source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                        <Text style={styles.serveTxt}>图文咨询</Text>
-                        <Text style={styles.serveNum}></Text>
-                    </View>
-                </View>
-                <View style={styles.docLay}>
-                    <Text style={styles.docLayTitle}>儿科专家</Text>
-                    <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                        <View style={styles.serveItem}>
-                            <Image style={styles.docImg}
+                    <Text style={styles.other_title}>------其他登陆方式------</Text>
+
+                    <View style={styles.serveLay}>
+                        <View style={styles.serveItem} onPress={this._otherLogin.bind(this,0)}>
+                            <Image style={styles.serveImg}
                                    source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.docTxt}>系主任</Text>
-                            <Text style={styles.docValue}>急症科</Text>
+                            <Text style={styles.serveTxt}>QQ</Text>
                         </View>
-                        <View style={styles.serveItem}>
-                            <Image style={styles.docImg}
+                        <View style={styles.serveItem} onPress={this._otherLogin.bind(this,1)}>
+                            <Image style={styles.serveImg}
                                    source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.docTxt}>系主任</Text>
-                            <Text style={styles.docValue}>急症科</Text>
+                            <Text style={styles.serveTxt}>微信</Text>
                         </View>
-                        <View style={styles.serveItem}>
-                            <Image style={styles.docImg}
+                        <View style={styles.serveItem} onPress={this._otherLogin.bind(this,2)}>
+                            <Image style={styles.serveImg}
                                    source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.docTxt}>系主任</Text>
-                            <Text style={styles.docValue}>急症科</Text>
+                            <Text style={styles.serveTxt}>新浪</Text>
                         </View>
-                        <View style={styles.serveItem}>
-                            <Image style={styles.docImg}
-                                   source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.docTxt}>系主任</Text>
-                            <Text style={styles.docValue}>急症科</Text>
-                        </View>
-                    </ScrollView>
+                    </View>
                 </View>
             </ScrollView>
+        );
+    }
+
+    _otherLogin(which){
+        ToastAndroid.show("_otherLogin"+which, ToastAndroid.SHORT);
+    }
+
+    _commit(){
+        ToastAndroid.show("_commit", ToastAndroid.SHORT);
+    }
+
+    _registe(){
+        ToastAndroid.show("_registe", ToastAndroid.SHORT);
+    }
+
+    _switchCanSeePwd() {
+        this.setState({
+                canSeePwd: !this.state.canSeePwd
+            }
         );
     }
 }
 
 
 var styles = {
-    flexContainer: {
-        // 容器需要添加direction才能变成让子元素flex
-        flexDirection: 'row'
-    },
-    cell: {
-        flex: 1,
-        height: 50,
-        backgroundColor: '#aaaaaa'
-    },
-    welcome: {
-        backgroundColor: "red",
-        fontSize: 20,
-        textAlign: 'center',
-        margin: 10
-    },
     container: {
-        backgroundColor: "#f2f2f2",
-        flexDirection: "column"
-    },
-    headerLay: {
-        height: 200,
-        backgroundColor: "pink",
-        flexDirection: "column",
+        backgroundColor: ColorUtil.bg_color,
+        display: "flex",
         alignItems: "center",
-        justifyContent: "center"
     },
     avatar: {
+        marginTop:50,
         height: 80,
         width: 80,
         borderRadius: 40,
-        marginBottom: 10
     },
-    headerTool: {
+    inputLay: {
+        width: ScreenUtil.SW - 80,
+        height: 44,
+        backgroundColor: "white",
+        borderColor: ColorUtil.bg_color,
+        paddingLeft:10,
+        paddingRight:10,
+        borderWidth: 1,
+        display: "flex",
         flexDirection: "row",
-        marginTop: 10
+        alignItems:"center",
+        marginTop:10,
     },
-    headerToolTxt: {
-        paddingLeft: 10,
-        paddingRight: 10,
+    icon_input_l: {
+        height: 24,
+        width: 24,
+    },
+    icon_input_r: {
+        height: 24,
+        width: 24,
+    },
+    txtInput: {
+        flex:1,
+        backgroundColor:"white",
+        marginLeft:10,
+        height: 40,
+        display: "block",
+        borderBottom:"none",
+        fontSize:16,
+        lineHeight:40,
+    },
+    btnLay:{
+        width: ScreenUtil.SW - 80,
+        display:"flex",
+        flexDirection:"row",
+        marginTop:20,
+        marginBottom:20
+    },
+    commit:{
+        backgroundColor:"blue",
+        borderRadius: 4,
+        flex:1,
+        fontSize:16,
+        color:"white",
+        paddingTop:10,
+        paddingBottom:10,
+        textAlign:"center",
+        marginRight:10,
+    },
+    registe:{
+        backgroundColor:"purple",
+        borderRadius: 4,
+        flex:1,
+        fontSize:16,
+        color:"white",
+        paddingTop:10,
+        paddingBottom:10,
+        textAlign:"center",
+        marginLeft:10,
+    },
+    other_title:{
+        color:"white",
+        fontSize:14,
+        marginTop:10,
     },
     serveLay: {
-        backgroundColor: "#ffffff",
+        marginTop:20,
+        display:"flex",
         flexDirection: "row",
         flexWrap: "wrap"
     },
     serveItem: {
-        width: sw / 3,
+        flex:1,
         alignItems: "center",
         justifyContent: "center",
         paddingVertical: 10
     },
     serveImg: {
-        height: 45,
-        width: 45,
+        height: 40,
+        width: 40,
     },
     serveTxt: {
-        fontSize: 16,
-        color: "#4d4d4d"
-    },
-    serveNum: {
+        marginTop:10,
         fontSize: 14,
-        color: "#b3b3b3"
-    },
-    docLay: {
-        marginBottom: 10,
-        backgroundColor: "#ffffff",
-        marginTop: 10,
-    },
-    docLayTitle: {
-        height: 30,
-        fontSize: 16,
-        paddingTop: 4,
-        color: "#b3b3b3",
-        paddingLeft: 10,
-        borderBottomWidth: 1,
-        borderColor: "#f2f2f2"
-    },
-    docLayContent: {},
-    docImg: {
-        height: 50,
-        width: 50,
-    },
-    docTxt: {
-        fontSize: 16,
-        color: "#4d4d4d"
-    },
-    docValue: {
-        fontSize: 14,
-        color: "#b3b3b3"
+        color: "white"
     },
 };
 module.exports = Login;

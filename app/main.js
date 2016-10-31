@@ -9,10 +9,14 @@ import {
     Text,
     View,
     Image,
+    BackAndroid,
+    Platform,
+    ToastAndroid,
 } from 'react-native';
 var Mine = require('./mine');
 var Home = require('./home');
 var Lv = require('./listview');
+var ViewPager = require('./viewpager');
 //引入tabbar支持包
 import TabNavigator from 'react-native-tab-navigator';
 
@@ -29,8 +33,8 @@ const TAB_PRESS_3=require('../images/tabbar_3_press.png');
 const TAB_PRESS_4=require('../images/tabbar_4_press.png');
 
 let Comp = Home;
+var lastBackPressed = 0 ;
 export default class Main extends Component {
-
     constructor(){
         super();
         this.state={
@@ -38,6 +42,25 @@ export default class Main extends Component {
         }
     }
 
+    componentWillMount() {
+        if (Platform.OS === 'android') {
+            BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid);
+        }
+    }
+    componentWillUnmount() {
+        if (Platform.OS === 'android') {
+            BackAndroid.removeEventListener('hardwareBackPress', this.onBackAndroid);
+        }
+    }
+    onBackAndroid = () => {
+        if (lastBackPressed && lastBackPressed + 2000 >= Date.now()) {
+            //最近2秒内按过back键，可以退出应用。
+            return false;
+        }
+        lastBackPressed = Date.now();
+        ToastAndroid.show('再按一次退出应用', ToastAndroid.SHORT);
+        return true;
+    }
     /**
      tab点击方法
      **/
@@ -70,7 +93,7 @@ export default class Main extends Component {
             case 'Follow':
                 tabNomal=TAB_NORMAL_3;
                 tabPress=TAB_PRESS_3;
-                Comp = Mine;
+                Comp = ViewPager;
                 break;
             case 'Mine':
                 tabNomal=TAB_NORMAL_4;
@@ -87,7 +110,8 @@ export default class Main extends Component {
                 selected={this.state.selectedTab===tabName}
                 selectedTitleStyle={{color:'#f85959'}}
                 onPress={()=>this.onPress(tabName)}
-                renderBadge={()=>isBadge?<View style={styles.badgeView}><Text style={styles.badgeText}>15</Text></View>:null}>
+                renderBadge={()=>isBadge?<Text style={styles.badgeText}>15</Text>:null}
+            >
                 <Comp navigator={this.props.navigator}></Comp>
             </TabNavigatorItem>
         );
@@ -98,11 +122,9 @@ export default class Main extends Component {
      **/
     tabBarView(){
         return (
-            <TabNavigator
-                tabBarStyle={styles.tab}
-            >
+            <TabNavigator tabBarStyle={styles.tab}>
                 {this.renderTabView('头条','Home','头条板块',true)}
-                {this.renderTabView('视频','Video','视频板块',false)}
+                {this.renderTabView('视频','Video','视频板块',true)}
                 {this.renderTabView('关注','Follow','关注板块',false)}
                 {this.renderTabView('我的','Mine','我的板块',false)}
             </TabNavigator>
@@ -144,19 +166,11 @@ const styles = StyleSheet.create({
         width:25,
         height:25,
     },
-    badgeView:{
-        width:22,
-        height:14 ,
-        backgroundColor:'#f85959',
-        borderWidth:1,
-        marginLeft:10,
-        marginTop:3,
-        borderColor:'#FFF',
-        alignItems:'center',
-        justifyContent:'center',
-        borderRadius:8,
-    },
     badgeText:{
+        padding:2,
+        marginTop:8,
+        borderRadius:8,
+        backgroundColor:'black',
         color:'#fff',
         fontSize:8,
     }
