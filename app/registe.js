@@ -23,8 +23,9 @@ var ScreenUtil = require("./util/ScreenUtil");
 var ColorUtil = require("./util/color");
 var imageFile = require("../images/tabbar_2_press.png")
 var LoadingDialog = require("./componet/LoadingDialog")
-var Registe = require("./registe")
-export default class Login extends React.Component {
+var timeCount = 5;
+var timer  = null;
+export default class Com extends React.Component {
     componentWillMount() {
         if (Platform.OS === 'android') {
             BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid.bind(this));
@@ -50,6 +51,7 @@ export default class Login extends React.Component {
             pwd: "",
             canSeePwd: true,
             showLoading:false,
+            txtVcode:"获取二维码"
         }
     }
 
@@ -86,41 +88,27 @@ export default class Login extends React.Component {
                             <Image style={styles.icon_input_r} source={{uri:canSeePwdIcon}}></Image>
                         </TouchableHighlight>
                     </View>
+                    <View style={[styles.inputLay,{ paddingRight: 0,}]}>
+                        <TextInput style={styles.txtInput}
+                                   underlineColorAndroid={'#ffffff'}
+                                   placeholder="验证码"
+                                   numberOfLines={1}
+                                   autoFocus={false}
+                                   secureTextEntry={!this.state.canSeePwd}
+                                   onChangeText={(pwd) => this.setState({pwd})}
+                                   value={this.state.pwd}/>
+                        <Text style={styles.btnVcode} onPress={this._getVcode.bind(this)}>{this.state.txtVcode}</Text>
+                    </View>
                     <View style={styles.btnLay}>
-                        <Text style={styles.commit} onPress={this._commit.bind(this)}>登陆</Text>
-                        <Text style={styles.registe} onPress={this._registe.bind(this)}>注册</Text>
+                        <Text style={styles.commit} onPress={this._commit.bind(this)}>注册</Text>
+                        <Text style={styles.cancel} onPress={this._cancel.bind(this)}>取消</Text>
                     </View>
-                    <Text style={styles.other_title}>------其他登陆方式------</Text>
-                    <View style={styles.serveLay}>
-                        <TouchableWithoutFeedback onPress={this._otherLogin.bind(this,0)} >
-                            <View style={styles.serveItem}>
-                                <Image style={styles.serveImg}
-                                       source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                                <Text style={styles.serveTxt}>QQ</Text>
-                            </View>
-                        </TouchableWithoutFeedback>
-                        <TouchableWithoutFeedback onPress={this._otherLogin.bind(this,1)} >
-                            <View style={styles.serveItem}>
-                                <Image style={styles.serveImg}
-                                       source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                                <Text style={styles.serveTxt}>微信</Text>
-                            </View>
-                        </TouchableWithoutFeedback>
-                        <TouchableWithoutFeedback onPress={this._otherLogin.bind(this,2)} >
-                            <View style={styles.serveItem}>
-                                <Image style={styles.serveImg}
-                                       source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                                <Text style={styles.serveTxt}>新浪</Text>
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </View>
-                    <Text style={styles.other_title} onPress={this._forget.bind(this)}>忘记密码</Text>
                     {
                         !this.state.showLoading ? (
                             null
                         ) : (
                             <LoadingDialog
-                                title="登陆中"
+                                title="注册中"
                                 cancelable = {true}
                                 clickOuter={()=>{
                                     ToastAndroid.show("clickOuter", ToastAndroid.SHORT);
@@ -134,6 +122,30 @@ export default class Login extends React.Component {
                 </View>
             </ScrollView>
         );
+     }
+
+    _getVcode(){
+        //实现倒记时
+        var that = this;
+        if(!timer) {
+            ToastAndroid.show("5秒后可以重发" + "", ToastAndroid.SHORT);
+            timer = setInterval(()=> {
+                if (timeCount <= 0) {
+                    that.setState({
+                        txtVcode:"获取二维码"
+                    })
+                    clearInterval(timer);
+                    timer = null;
+                    timeCount = 5;
+                    return;
+                }
+                that.setState({
+                    txtVcode: timeCount + "秒"
+                })
+                timeCount--;
+            }, 1000);
+        }
+        ToastAndroid.show(timeCount+"秒后重发" + "", ToastAndroid.SHORT);
     }
 
     _forget(){
@@ -151,15 +163,11 @@ export default class Login extends React.Component {
         });
     }
 
-    _registe() {
-        ToastAndroid.show("_registe", ToastAndroid.SHORT);
+    _cancel() {
+        ToastAndroid.show("取消", ToastAndroid.SHORT);
         const { navigator} = this.props;
         if (navigator) {
-            navigator.push({
-                name:'Registe',
-                component:Registe,
-                params:{}
-            })
+            navigator.pop()
         }
     }
 
@@ -219,6 +227,15 @@ var styles = {
         fontSize: 16,
         lineHeight: 40,
     },
+    btnVcode:{
+        textAlign:"center",
+        lineHeight:33,
+        height:44,
+        width:88,
+        fontSize:14,
+        color:"white",
+        backgroundColor:"orange",
+    },
     btnLay: {
         width: ScreenUtil.SW - 80,
         display: "flex",
@@ -237,7 +254,7 @@ var styles = {
         textAlign: "center",
         marginRight: 10,
     },
-    registe: {
+    cancel: {
         backgroundColor: "purple",
         borderRadius: 4,
         flex: 1,
@@ -279,4 +296,4 @@ var styles = {
         fontSize: 16,
     },
 };
-module.exports = Login;
+module.exports = Com;

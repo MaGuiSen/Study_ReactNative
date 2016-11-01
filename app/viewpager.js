@@ -25,6 +25,7 @@ var Lv = require('./listview');
 
 export default class ViewPager extends React.Component {
     render() {
+        const { navigator} = this.props;
         return (
             <ScrollableTabView
                 tabBarUnderlineColor='#FF0000'
@@ -35,9 +36,9 @@ export default class ViewPager extends React.Component {
                 renderTabBar={() => <ScrollableTabBar/>}>
                 <Text tabLabel='Tab1'/>
                 <Text style={{backgroundColor:"red",height:2000,width:100}} tabLabel='Tab2'/>
-                <Mine tabLabel='Mine'/>
-                <Home tabLabel='Home'/>
-                <Lv tabLabel='Lv'/>
+                <Mine navigator={navigator} tabLabel='Mine'/>
+                <Home navigator={navigator}  tabLabel='Home'/>
+                <Lv  navigator={navigator} tabLabel='Lv'/>
             </ScrollableTabView>
         );
     }
