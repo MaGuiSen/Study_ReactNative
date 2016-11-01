@@ -30,7 +30,7 @@ var IndexView = React.createClass({
         };
     },
     _getData(){
-        HttpExecute.getDynamicHome({},this._getSuccess,this._getFail)
+        //HttpExecute.getDynamicHome({},this._getSuccess,this._getFail)
     },
     _getSuccess(json){
         this.setState({

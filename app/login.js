@@ -14,25 +14,48 @@ var React = require("react"),
         ToastAndroid,
         ScrollView,
         TouchableHighlight,
-        TextInput
+        TextInput,
+        TouchableWithoutFeedback,
+        BackAndroid,
+        Platform
         } = require("react-native");
 var ScreenUtil = require("./util/ScreenUtil");
-var ColorUtil = require("./util/ColorUtil");
-const SERVE_DETAIL = 0, HEALTH_PROFILE = 1, MSG_RECORD = 2;
+var ColorUtil = require("./util/color");
+var imageFile = require("../images/tabbar_2_press.png")
+var LoadingDialog = require("./componet/LoadingDialog")
 export default class Login extends React.Component {
+    componentWillMount() {
+        if (Platform.OS === 'android') {
+            BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid.bind(this));
+        }
+    }
+    componentWillUnmount() {
+        if (Platform.OS === 'android') {
+            BackAndroid.removeEventListener('hardwareBackPress', this.onBackAndroid.bind(this));
+        }
+    }
+    onBackAndroid(){
+        //往上一层退
+        const { navigator} = this.props;
+        if (navigator) {
+            navigator.pop()
+        }
+        return true;
+    }
     constructor(props) {
         super(props);
         this.state = {
             userName: "",
-            pwd:"",
-            canSeePwd:true
+            pwd: "",
+            canSeePwd: true,
+            showLoading:false,
         }
     }
 
     render() {
-        let canSeePwdIcon = this.state.canSeePwd ? 'http://res.dyhjw.com/ueditor/php/upload/image/20161027/1477530185494247.jpg': 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg';
+        let canSeePwdIcon = this.state.canSeePwd ? 'http://res.dyhjw.com/ueditor/php/upload/image/20161027/1477530185494247.jpg' : 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg';
         return (
-            <ScrollView>
+            <ScrollView style={styles.scroll}>
                 <View style={styles.container}>
                     <Image style={styles.avatar}
                            source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
@@ -60,45 +83,74 @@ export default class Login extends React.Component {
                                    value={this.state.pwd}/>
                         <TouchableHighlight onPress={this._switchCanSeePwd.bind(this)}>
                             <Image style={styles.icon_input_r} source={{uri:canSeePwdIcon}}></Image>
-                         </TouchableHighlight>
+                        </TouchableHighlight>
                     </View>
                     <View style={styles.btnLay}>
                         <Text style={styles.commit} onPress={this._commit.bind(this)}>登陆</Text>
                         <Text style={styles.registe} onPress={this._registe.bind(this)}>注册</Text>
                     </View>
                     <Text style={styles.other_title}>------其他登陆方式------</Text>
-
                     <View style={styles.serveLay}>
-                        <View style={styles.serveItem} onPress={this._otherLogin.bind(this,0)}>
-                            <Image style={styles.serveImg}
-                                   source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.serveTxt}>QQ</Text>
-                        </View>
-                        <View style={styles.serveItem} onPress={this._otherLogin.bind(this,1)}>
-                            <Image style={styles.serveImg}
-                                   source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.serveTxt}>微信</Text>
-                        </View>
-                        <View style={styles.serveItem} onPress={this._otherLogin.bind(this,2)}>
-                            <Image style={styles.serveImg}
-                                   source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
-                            <Text style={styles.serveTxt}>新浪</Text>
-                        </View>
+                        <TouchableWithoutFeedback onPress={this._otherLogin.bind(this,0)} >
+                            <View style={styles.serveItem}>
+                                <Image style={styles.serveImg}
+                                       source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
+                                <Text style={styles.serveTxt}>QQ</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={this._otherLogin.bind(this,1)} >
+                            <View style={styles.serveItem}>
+                                <Image style={styles.serveImg}
+                                       source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
+                                <Text style={styles.serveTxt}>微信</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={this._otherLogin.bind(this,2)} >
+                            <View style={styles.serveItem}>
+                                <Image style={styles.serveImg}
+                                       source={{uri: 'http://file.1ping.com/Public/app/images/screen/yao_banner.jpg'}}></Image>
+                                <Text style={styles.serveTxt}>新浪</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
                     </View>
+                    <Text style={styles.other_title} onPress={this._forget.bind(this)}>忘记密码</Text>
+                    {
+                        !this.state.showLoading ? (
+                            null
+                        ) : (
+                            <LoadingDialog
+                                title="登陆中"
+                                cancelable = {true}
+                                clickOuter={()=>{
+                                    ToastAndroid.show("clickOuter", ToastAndroid.SHORT);
+                                    this.setState({
+                                        showLoading:false
+                                    })
+                                }
+                            }/>
+                        )
+                    }
                 </View>
             </ScrollView>
         );
     }
 
-    _otherLogin(which){
-        ToastAndroid.show("_otherLogin"+which, ToastAndroid.SHORT);
+    _forget(){
+        ToastAndroid.show("_forget" + "", ToastAndroid.SHORT);
     }
 
-    _commit(){
+    _otherLogin(which) {
+        ToastAndroid.show("_otherLogin" + which, ToastAndroid.SHORT);
+    }
+
+    _commit() {
         ToastAndroid.show("_commit", ToastAndroid.SHORT);
+        this.setState({
+            showLoading:!this.state.showLoading
+        });
     }
 
-    _registe(){
+    _registe() {
         ToastAndroid.show("_registe", ToastAndroid.SHORT);
     }
 
@@ -112,13 +164,19 @@ export default class Login extends React.Component {
 
 
 var styles = {
+    scroll:{
+        backgroundColor:"red",
+        height: ScreenUtil.SH,
+    },
     container: {
+        padding: 0,
+        height: ScreenUtil.SH,
         backgroundColor: ColorUtil.bg_color,
         display: "flex",
         alignItems: "center",
     },
     avatar: {
-        marginTop:50,
+        marginTop: 50,
         height: 80,
         width: 80,
         borderRadius: 40,
@@ -128,13 +186,13 @@ var styles = {
         height: 44,
         backgroundColor: "white",
         borderColor: ColorUtil.bg_color,
-        paddingLeft:10,
-        paddingRight:10,
+        paddingLeft: 10,
+        paddingRight: 10,
         borderWidth: 1,
         display: "flex",
         flexDirection: "row",
-        alignItems:"center",
-        marginTop:10,
+        alignItems: "center",
+        marginTop: 10,
     },
     icon_input_l: {
         height: 24,
@@ -145,57 +203,55 @@ var styles = {
         width: 24,
     },
     txtInput: {
-        flex:1,
-        backgroundColor:"white",
-        marginLeft:10,
+        flex: 1,
+        backgroundColor: "white",
+        marginLeft: 10,
         height: 40,
-        display: "block",
-        borderBottom:"none",
-        fontSize:16,
-        lineHeight:40,
+        fontSize: 16,
+        lineHeight: 40,
     },
-    btnLay:{
+    btnLay: {
         width: ScreenUtil.SW - 80,
-        display:"flex",
-        flexDirection:"row",
-        marginTop:20,
-        marginBottom:20
+        display: "flex",
+        flexDirection: "row",
+        marginTop: 20,
+        marginBottom: 20
     },
-    commit:{
-        backgroundColor:"blue",
+    commit: {
+        backgroundColor: "blue",
         borderRadius: 4,
-        flex:1,
-        fontSize:16,
-        color:"white",
-        paddingTop:10,
-        paddingBottom:10,
-        textAlign:"center",
-        marginRight:10,
+        flex: 1,
+        fontSize: 16,
+        color: "white",
+        paddingTop: 10,
+        paddingBottom: 10,
+        textAlign: "center",
+        marginRight: 10,
     },
-    registe:{
-        backgroundColor:"purple",
+    registe: {
+        backgroundColor: "purple",
         borderRadius: 4,
-        flex:1,
-        fontSize:16,
-        color:"white",
-        paddingTop:10,
-        paddingBottom:10,
-        textAlign:"center",
-        marginLeft:10,
+        flex: 1,
+        fontSize: 16,
+        color: "white",
+        paddingTop: 10,
+        paddingBottom: 10,
+        textAlign: "center",
+        marginLeft: 10,
     },
-    other_title:{
-        color:"white",
-        fontSize:14,
-        marginTop:10,
+    other_title: {
+        color: "white",
+        fontSize: 14,
+        marginTop: 10,
     },
     serveLay: {
-        marginTop:20,
-        display:"flex",
+        marginTop: 20,
+        display: "flex",
         flexDirection: "row",
         flexWrap: "wrap"
     },
     serveItem: {
-        flex:1,
+        flex: 1,
         alignItems: "center",
         justifyContent: "center",
         paddingVertical: 10
@@ -205,9 +261,13 @@ var styles = {
         width: 40,
     },
     serveTxt: {
-        marginTop:10,
+        marginTop: 10,
         fontSize: 14,
         color: "white"
+    },
+    forget_title: {
+        color: "white",
+        fontSize: 16,
     },
 };
 module.exports = Login;
