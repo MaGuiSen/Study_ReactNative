@@ -26,24 +26,27 @@ var LoadingDialog = require("./componet/LoadingDialog")
 var timeCount = 5;
 var timer  = null;
 export default class Com extends React.Component {
-    componentWillMount() {
+     componentWillMount() {
         if (Platform.OS === 'android') {
-            BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid.bind(this));
-        }
+        BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid.bind(this));
+    }
     }
     componentWillUnmount() {
+        ToastAndroid.show("componentWillUnmount", ToastAndroid.SHORT);
         if (Platform.OS === 'android') {
             BackAndroid.removeEventListener('hardwareBackPress', this.onBackAndroid.bind(this));
         }
     }
     onBackAndroid(){
-        //往上一层退
-        const { navigator} = this.props;
-        if (navigator) {
-            navigator.pop()
-        }
-        return true;
-    }
+        ToastAndroid.show("regist——onBackAndroid", ToastAndroid.SHORT);
+        ////往上一层退
+        //const { navigator} = this.props;
+        //if (navigator) {
+        //    navigator.pop()
+        //}
+        //return true;
+    return false;
+}
     constructor(props) {
         super(props);
         this.state = {

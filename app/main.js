@@ -53,6 +53,12 @@ export default class Main extends Component {
         }
     }
     onBackAndroid = () => {
+        const { navigator } = this.props;
+        const routers = navigator.getCurrentRoutes();
+        if (routers.length > 2) {
+            navigator.pop();
+            return true;
+        }
         if (lastBackPressed && lastBackPressed + 2000 >= Date.now()) {
             //最近2秒内按过back键，可以退出应用。
             return false;
@@ -61,6 +67,7 @@ export default class Main extends Component {
         ToastAndroid.show('再按一次退出应用', ToastAndroid.SHORT);
         return true;
     }
+
     /**
      tab点击方法
      **/

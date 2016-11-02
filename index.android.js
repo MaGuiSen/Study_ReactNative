@@ -4,9 +4,15 @@
 // * @flow
 // */
 var React =  require('react'),
-    { AppRegistry,Navigator} =  require('react-native')
+    { AppRegistry,
+        Navigator,
+        BackAndroid,
+        Platform,
+        ToastAndroid,
+        } =  require('react-native')
     Start = require('./app/start');
 export default class Root extends React.Component{
+
     _renderScene(route,navigator){
         if(route.component) {
             let Component = route.component;
@@ -18,6 +24,9 @@ export default class Root extends React.Component{
       //跳转的动画
         return Navigator.SceneConfigs.PushFromRight;
     };
+
+
+
     render(){
         let defaultName = 'start',defaultComponent = Start;
         return(

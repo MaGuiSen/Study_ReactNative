@@ -40,8 +40,9 @@ class Lv extends React.Component {
         });
         return(
             <ListView
+                style={{backgroundColor:"#f2f2f2"}}
                 dataSource={this.state.dataSource}
-                renderRow = {this._renderRow}
+                renderRow = {this._renderRow.bind(this)}
                 onEndReached={this._onEndReached} //到达底部需要设置则个
                 pageSize={3}  //??
                 initialListSize ={3}  //??  每帧渲染几条
@@ -70,7 +71,7 @@ class Lv extends React.Component {
     }
 
      _renderRow(rowData) {
-       return (<MsgItem txt={rowData}></MsgItem>);
+       return (<MsgItem navigator={this.props.navigator} txt={rowData}></MsgItem>);
     }
 }
 module.exports = Lv;

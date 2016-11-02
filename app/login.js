@@ -36,12 +36,14 @@ export default class Login extends React.Component {
         }
     }
     onBackAndroid(){
-        //往上一层退
-        const { navigator} = this.props;
-        if (navigator) {
-            navigator.pop()
-        }
-        return true;
+        ToastAndroid.show("login——onBackAndroid", ToastAndroid.SHORT);
+        ////往上一层退
+        //const { navigator} = this.props;
+        //if (navigator) {
+        //    navigator.pop()
+        //}
+        //return true;
+        return false;
     }
     constructor(props) {
         super(props);

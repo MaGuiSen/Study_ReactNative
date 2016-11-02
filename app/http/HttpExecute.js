@@ -30,6 +30,7 @@ async function httpFetch(url, params, method,callBackFail) {
     return fetch(url, {
         method: method,
         headers: {
+            'sign':'1234556',
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
